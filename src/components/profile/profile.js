@@ -5,7 +5,7 @@ export const Profile = ()=>{
 	return(
 		<View style={styles.container}>
 			<Text>
-				This is Profile Page
+			Welcome to Profile Page
 			</Text>
 		</View>
 	)

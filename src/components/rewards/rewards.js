@@ -5,7 +5,7 @@ export const Rewards = ()=>{
 	return(
 		<View style={styles.container}>
 			<Text>
-				This is Rewards Page
+			Welcome to Rewards Page
 			</Text>
 		</View>
 	)

@@ -5,7 +5,7 @@ export const Reservation = ()=>{
 	return(
 		<View style={styles.container}>
 			<Text>
-				This is Reservation Page
+			Welcome to Reservation Page
 			</Text>
 		</View>
 	)

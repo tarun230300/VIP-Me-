@@ -5,7 +5,7 @@ export const Media = ()=>{
 	return(
 		<View style={styles.container}>
 			<Text>
-				This is Media Page
+			Welcome to Media Page
 			</Text>
 		</View>
 	)

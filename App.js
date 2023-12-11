@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { Text, View } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Ionicons } from '@expo/vector-icons';
-import { AntDesign, MaterialIcons } from '@expo/vector-icons';
+import { createStackNavigator } from '@react-navigation/stack';
+import { MaterialIcons, FontAwesome, Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import {Home} from './src/components/home/home'
 import { Reservation } from './src/components/reservations/reservation';
@@ -11,69 +11,131 @@ import { Media } from './src/components/media/media';
 import { Events } from './src/components/events/events';
 import { Rewards } from './src/components/rewards/rewards';
 import { Profile } from './src/components/profile/profile';
+import { RestaurantDetails } from './src/components/home/RestaurantDetails';
+
 
 const Tab = createBottomTabNavigator();
 
+const Stack = createStackNavigator();
+
+const HomeStack = () => (
+  <Stack.Navigator>
+    <Stack.Screen
+      name="HomeScreen"
+      component={Home}
+      // options={{
+      //   headerShown: false,
+      // }}
+     
+
+    />
+    <Stack.Screen
+      name= "RestaurantDetails"
+      component={RestaurantDetails}
+      // options={{
+      //   headerShown: false, // You can customize header options here if needed
+      // }}
+    />
+  </Stack.Navigator>
+);
+
+
+const getTabBarIcon = (route, focused, iconName) => {
+  const routeName = getFocusedRouteNameFromRoute(route);
+  const color = focused ? 'gold' : 'black';
+
+  switch (iconName) {
+    case 'home':
+      return <FontAwesome name="home" size={24} color={color} />;
+    case 'table-chair':
+      return <MaterialCommunityIcons name="table-chair" size={24} color={color} />;
+    case 'photo':
+      return <FontAwesome name="photo" size={24} color={color} />;
+    case 'event-seat':
+      return <MaterialIcons name="event-seat" size={24} color={color} />;
+    case 'emoji-events':
+      return <MaterialIcons name="emoji-events" size={24} color={color} />;
+    case 'people-sharp':
+      return <Ionicons name="people-sharp" size={24} color={color} />;
+    default:
+      return null;
+  }
+};
 export default function App() {
   return (
     <NavigationContainer>
-      <Tab.Navigator>
+      <Tab.Navigator
+         screenOptions={({ route }) => ({
+    tabBarStyle: [
+      {
+        display: 'flex',
+      },
+      null,
+    ],
+  })}
+      >
         <Tab.Screen
           name="Home"
-          component={Home}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <AntDesign name="home" size={24} color="black" />
-            ),
-          }}
+          component={HomeStack}
+          options={({ route }) => ({
+            tabBarIcon: ({ focused }) => getTabBarIcon(route, focused, 'home'),
+            tabBarLabelStyle: {
+            color: 'gold',
+            }
+          })}
         />
         <Tab.Screen
           name="Reservations"
           component={Reservation}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="ios-settings" size={size} color={color} />
-            ),
-          }}
+          options={({ route }) => ({
+            tabBarIcon: ({ focused }) => getTabBarIcon(route, focused, 'table-chair'),
+            tabBarLabelStyle: {
+            color: 'gold',
+            }
+          })}
         />
         <Tab.Screen
           name="Media"
           component={Media}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <MaterialIcons name="perm-media" size={24} color="black" />
-            ),
-          }}
+          options={({ route }) => ({
+            tabBarIcon: ({ focused }) => getTabBarIcon(route, focused, 'photo'),
+            tabBarLabelStyle: {
+            color: 'gold',
+            }
+          })}
         />
         <Tab.Screen
           name="Events"
           component={Events}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="ios-settings" size={size} color={color} />
-            ),
-          }}
+          options={({ route }) => ({
+            tabBarIcon: ({ focused }) => getTabBarIcon(route, focused, 'event-seat'),
+            tabBarLabelStyle: {
+            color: 'gold',
+            }
+          })}
         />
         <Tab.Screen
           name="Rewards"
           component={Rewards}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              // <Ionicons name="ios-settings" size={size} color={color} />
-              <AntDesign name="Trophy" size={24} color="black" />
-            ),
-          }}
+          options={({ route }) => ({
+            tabBarIcon: ({ focused }) => getTabBarIcon(route, focused, 'emoji-events'),
+            tabBarLabelStyle: {
+            color: 'gold',
+            }
+          })}
         />
         <Tab.Screen
-          name="Profile"
+          name="Membership"
           component={Profile}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="ios-settings" size={size} color={color} />
-            ),
-          }}
+          options={({ route }) => ({
+            tabBarIcon: ({ focused }) => getTabBarIcon(route, focused, 'people-sharp'),
+            tabBarLabelStyle: {
+            color: 'gold',
+            }
+          })}
         />
       </Tab.Navigator>
     </NavigationContainer>
   );
-}
+};
+
