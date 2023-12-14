@@ -1,15 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, FlatList, Image, ScrollView } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { Ionicons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
-
+import * as Location from "expo-location";
+import { BarCodeScanner } from "expo-barcode-scanner";
 import { useNavigation } from '@react-navigation/native';
+
+import { Dimensions } from 'react-native';
 
 export const Home = ({ route, nav }) => {
   const { headerText, headerIcon } = route.params || {};
   const navigation = useNavigation();
 
+  const { width, height } = Dimensions.get('window');
+
+
+  const [currentLocation, setCurrentLocation] = useState(null);
+  const [address, setAddress] = useState(null);
+  const [isScannerVisible, setScannerVisible] = useState(false);
+  const [hasPermission, setHasPermission] = useState(null);
   // For  Searchbar
   const [searchText, setSearchText] = useState('');
 
@@ -34,8 +44,8 @@ export const Home = ({ route, nav }) => {
     navigation.setOptions({
       headerTitle: () => (
         <View style={{flexDirection:'row'}}>
-          <TouchableOpacity onPress={() => handleIconPress('Location')}>
-            <Ionicons name="location" size={24} color="orange" />
+          <TouchableOpacity onPress={handleLocationPress}>
+            <Ionicons name="location" size={24} color="gold" />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => handleIconPress('Manually selecting Location')}>
             <AntDesign name="caretdown" size={9} color="black" style={{marginTop: 11}}/>
@@ -63,11 +73,63 @@ export const Home = ({ route, nav }) => {
         </View>
       ),
     });
-  }, [nav, headerText]);
+  }, [nav, headerText, currentLocation]);
+
+  //useEffect hook to request camera permissions
+  useEffect(() => {
+    (async () => {
+      const { status } = await BarCodeScanner.requestPermissionsAsync();
+      setHasPermission(status === "granted");
+    })();
+  }, []);
+  // function to handle barcode scanning
+  const handleBarCodeScanned = ({ type, data }) => {
+    console.log(`Bar code with type ${type} and data ${data} has been scanned!`);
+    // Handle the scanned data as needed, e.g., navigate to a different screen
+    setScannerVisible(false);
+  };
+
 
   const handleIconPress = (iconName) => {
-    // Handle the press event for each icon
-    console.log(`Pressed ${iconName}`);
+    if (iconName === "QR Code") {
+      setScannerVisible(true);
+    } else {
+      // Handle other icon presses
+      console.log(`Pressed ${iconName}`);
+    }
+  };
+ 
+  const handleBackArrowPress = () => {
+    setScannerVisible(false);
+  };
+
+  const handleLocationPress = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        console.log("Permission to access location was denied");
+        return;
+      }
+  
+      const location = await Location.getCurrentPositionAsync({});
+      setCurrentLocation(location.coords);
+  
+      // Reverse geocoding to get address details
+      const address = await Location.reverseGeocodeAsync({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
+  
+      console.log("Address details:", address);
+  
+      // Set the address state to trigger a re-render
+      setAddress({
+        city: address[0]?.city,
+        country: address[0]?.country,
+      });
+    } catch (error) {
+      console.error("Error fetching location:", error);
+    }
   };
 
   const renderRestaurantItem = ({ item }) => (
@@ -103,14 +165,25 @@ export const Home = ({ route, nav }) => {
     
     <View style={styles.container}>
       
-      <View style={styles.searchContainer}>
+          {currentLocation && (
+            <View style={styles.currentLocationContainer}>
+              {address && (
+                <View style={styles.addressContainer}>
+                  <Text>{address.city}, {address.country}</Text>
+                </View>
+              )}
+            </View>
+          )}
+
+      <View style={styles.searchContainer}>  
         {/* search icon */}
         <FontAwesome name="search" size={20} color="#FFD94A" style={styles.searchIcon} />
         
         {/* search box */}
         <TextInput
+          
           style={styles.searchInput}
-          placeholder="Find What You Want...."
+          placeholder='Find What You Want....'
           value={searchText}
           onChangeText={(text) => setSearchText(text)}  
         />
@@ -123,6 +196,18 @@ export const Home = ({ route, nav }) => {
         keyExtractor={(item) => item.id.toString()} 
         renderItem={renderRestaurantItem}
       />
+
+      {isScannerVisible && hasPermission && (
+        <View style={styles.scannerContainer}>
+          <TouchableOpacity onPress={handleBackArrowPress} style={styles.backArrowContainer}>
+          <Ionicons name="arrow-back-circle" size={40} color="gold" />
+          </TouchableOpacity>
+          <BarCodeScanner
+            style={{ ...StyleSheet.absoluteFillObject, backgroundColor: '#FFF8F1' }} // Adjust the size of the scanner
+            onBarCodeScanned={handleBarCodeScanned}
+          />
+        </View>
+      )}
     </View>
   );
 };
@@ -145,9 +230,9 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   searchInput: {
-    margin: 10,
+    margin: 5,
     paddingVertical: 5,
-    paddingHorizontal: 10,
+    paddingHorizontal: 40,
     borderWidth: 1,
     borderRadius: 13,
     borderColor:"#FFD94A",
@@ -156,6 +241,9 @@ const styles = StyleSheet.create({
   },
   searchIcon: {
     marginLeft: 5, // Adjust the spacing as needed
+    position: 'absolute',
+  left: 10, // Adjust the left position as needed
+  zIndex: 1,
 
   },
   restaurantItem: {
@@ -203,5 +291,27 @@ const styles = StyleSheet.create({
   },
   ratingContainer: {
     marginTop: 5,
+  },
+  // currentLocationContainer: {
+  //   marginTop: 10,
+  //   padding: 10,
+  //   borderRadius: 10,
+  //   backgroundColor: "#f0f0f0",
+  // },
+  addressContainer: {
+    // marginTop: 10,
+    padding: 5,
+    backgroundColor: "#FFF8F1",
+
+  },
+  scannerContainer: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 1,
+  },
+  backArrowContainer: {
+    position: 'absolute',
+    top: 5,
+    left: 20,
+    zIndex: 2,
   },
 });

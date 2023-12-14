@@ -65,14 +65,16 @@ export default function App() {
   return (
     <NavigationContainer>
       <Tab.Navigator
-         screenOptions={({ route }) => ({
-    tabBarStyle: [
-      {
+      screenOptions={({ route }) => ({
+       tabBarStyle:
+       {
         display: 'flex',
-      },
-      null,
-    ],
-  })}
+       },
+       tabBarLabelStyle: {
+            color: route.state?.index === route.key ? 'gold' : 'black',
+          },
+
+    })}
       >
         <Tab.Screen
           name="Home"
@@ -80,8 +82,9 @@ export default function App() {
           options={({ route }) => ({
             tabBarIcon: ({ focused }) => getTabBarIcon(route, focused, 'home'),
             tabBarLabelStyle: {
-            color: 'gold',
-            }
+              color: 'gold',
+
+            },
           })}
         />
         <Tab.Screen
@@ -89,9 +92,9 @@ export default function App() {
           component={Reservation}
           options={({ route }) => ({
             tabBarIcon: ({ focused }) => getTabBarIcon(route, focused, 'table-chair'),
-            tabBarLabelStyle: {
-            color: 'gold',
-            }
+            // tabBarLabelStyle: {
+            //  color: route.state?.index === 0 ? 'gold' : 'black',
+            // },
           })}
         />
         <Tab.Screen
@@ -99,9 +102,9 @@ export default function App() {
           component={Media}
           options={({ route }) => ({
             tabBarIcon: ({ focused }) => getTabBarIcon(route, focused, 'photo'),
-            tabBarLabelStyle: {
-            color: 'gold',
-            }
+            // tabBarLabelStyle: {
+            //   color: route.state?.index === 0 ? 'gold' : 'black',
+            // },
           })}
         />
         <Tab.Screen
@@ -109,9 +112,9 @@ export default function App() {
           component={Events}
           options={({ route }) => ({
             tabBarIcon: ({ focused }) => getTabBarIcon(route, focused, 'event-seat'),
-            tabBarLabelStyle: {
-            color: 'gold',
-            }
+            // tabBarLabelStyle: {
+            //   color: route.state?.index === 0 ? 'gold' : 'black',
+            // },
           })}
         />
         <Tab.Screen
@@ -119,9 +122,9 @@ export default function App() {
           component={Rewards}
           options={({ route }) => ({
             tabBarIcon: ({ focused }) => getTabBarIcon(route, focused, 'emoji-events'),
-            tabBarLabelStyle: {
-            color: 'gold',
-            }
+            // tabBarLabelStyle: {
+            //   color: route.state?.index === 0 ? 'gold' : 'black',
+            // },
           })}
         />
         <Tab.Screen
@@ -129,9 +132,9 @@ export default function App() {
           component={Profile}
           options={({ route }) => ({
             tabBarIcon: ({ focused }) => getTabBarIcon(route, focused, 'people-sharp'),
-            tabBarLabelStyle: {
-            color: 'gold',
-            }
+            // tabBarLabelStyle: {
+            //   color: route.state?.index === 0 ? 'gold' : 'black',
+            // },
           })}
         />
       </Tab.Navigator>
